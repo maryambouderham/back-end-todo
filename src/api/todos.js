@@ -4,15 +4,20 @@ const { TaskTypeEnum } = require("../data/enum/TaskType");
 const { Task } = require("../models/task");
 exports.addTodo=(req,resp)=>{
     //task to added
-    let newTask=new Task("task2",req.params.userID )
+    //let newTask=new Task("task2",req.params.userID )
+    const title=req.body.titre
+    const status=req.body.statu
+    const type=req.body.typ
+    const user=req.body.userId
+
     //query
-    let query=`insert into todos set ?`
+    let query=`insert into todos (TITLE,STATUS,TYPE,userId) values (${title},${status},${type},${user})`
     //apply query
-    db.query(query,newTask,(err,resQ)=>{
+    db.query(query,(err,resQ)=>{
         if(err) throw err
         else{
             console.log(resQ)
-            resp.send("task added ...")
+            resp.status(402).json({ message:"task added ..."})
         }
     })
 }
@@ -72,9 +77,8 @@ db.query(query,(err,resQ)=>{
     if(err) throw err
     else{
         console.log(resQ)
-        resQ.forEach(element => {
-            resp.send(element)
-        });
+            resp.json(resQ)
+       
         
     }
 })

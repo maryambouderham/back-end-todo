@@ -5,6 +5,9 @@ const { addUser, login,reset, resend, forgetPw } = require("./api/user")
 const { API_URL } = require("./config/api")
 const {db}=require("./config/mysql")
 const {verifyDate}=require("./helpers.js/verifyDate")
+const bodyParser=require('body-parser')
+const cors=require('cors')
+const { handleError } = require("./helpers.js/error")
 //listen database query
 db.connect((err,res)=>{
     if(err) throw err
@@ -14,20 +17,26 @@ db.connect((err,res)=>{
 const app=express()
 
 
-app.listen('9000',()=>{
-    console.log('server is runing on port 9000');
+app.listen(9000,()=>{
+    console.log('sesrver is runing on port 9000');
 })
+app.use(bodyParser.urlencoded({extended:true}))
+app.use(cors())
+app.use(express.json())
+app.use((err, req, res, next) => {
+    handleError(err, res);
+  });
 //user API
-app.get(`${API_URL.user}/add`,addUser)
-app.get(`${API_URL.user}/login`,login)
-app.get(`${API_URL.user}/:userEmail/reset`,forgetPw)
+app.post(`${API_URL.user}/add`,addUser)
+app.post(`${API_URL.user}/login`,login)
+app.get(`${API_URL.user}/reset/:userEmail`,forgetPw)
 app.get(`${API_URL.user}/:userEmail/resend`,resend)
-app.get(`/api/resetPassword/:userEmail/code/:token`,reset)
+app.post(`/api/resetPassword/:userEmail/code/:token`,reset)
 //todo API
 app.get(`${API_URL.user}/:userID${API_URL.todo}/add`,addTodo)
 app.get(`${API_URL.user}/:userID${API_URL.todo}/:taskID/edit`,editTodo)
 app.get(`${API_URL.user}/:userID${API_URL.todo}/:taskID/delete`,deleteTodo)
-app.get(`${API_URL.user}/:userID${API_URL.todo}/all`,listTodo)
+app.get(`${API_URL.user}${API_URL.todo}/all/:userID`,listTodo)
 app.get(`${API_URL.user}/:userID${API_URL.todo}/:todoID`,markAs)
 
 //security
